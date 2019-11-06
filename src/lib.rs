@@ -11,6 +11,11 @@ pub struct ActiveLow;
 /// Unit struct for active-high pins.
 pub struct ActiveHigh;
 
+pub enum Activeness {
+    ActiveHigh,
+    ActiveLow,
+}
+
 /// A debounced input pin.
 ///
 /// Implements approach 1 from [here](http://www.labbookpages.co.uk/electronics/debounce.html#soft)
@@ -33,12 +38,17 @@ pub struct DebouncedInputPin<T: InputPin, A> {
 
 impl<T: InputPin, A> DebouncedInputPin<T, A> {
     /// Initializes a new debounced input pin.
-    pub fn new(pin: T, _activeness: A) -> Self {
-        DebouncedInputPin {
+    pub fn new(pin: T, activeness: Activeness) -> Self {
+        // Initially assume that the pin is not active
+        let initial_state = match activeness {
+            Activeness::ActiveHigh => false,
+            Activeness::ActiveLow => true,
+        };
+        Self {
             pin,
             activeness: PhantomData,
             counter: 0,
-            state: false,
+            state: initial_state,
         }
     }
 }

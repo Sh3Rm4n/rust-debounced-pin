@@ -1,5 +1,4 @@
 use crate::DebouncedInputPin;
-use common::*;
 use embedded_hal::digital::v2::InputPin;
 use failure::Fail;
 use mocks::*;
@@ -32,16 +31,6 @@ mod mocks {
     }
 }
 
-/// Shared functionallity for tests.
-mod common {
-    use super::*;
-
-    /// Creates a `DebouncedInputPin<MockInputPin, A>`.
-    pub fn create_pin<A>(activeness: A) -> DebouncedInputPin<MockInputPin, A> {
-        let pin = MockInputPin::default();
-        DebouncedInputPin::new(pin, activeness)
-    }
-}
 
 /// Tests for `DebouncedInputPin<T, A>`.
 mod input_pin {
@@ -51,6 +40,13 @@ mod input_pin {
     mod active_high {
         use super::*;
         use crate::ActiveHigh; // Not importing `ActiveHigh` further up the chain to prevent mistakes.
+        use crate::Activeness;
+
+        /// Creates a `DebouncedInputPin<MockInputPin, A>`.
+        pub fn create_pin<A>(_activeness: A) -> DebouncedInputPin<MockInputPin, A> {
+            let pin = MockInputPin::default();
+            DebouncedInputPin::new(pin, Activeness::ActiveHigh)
+        }
 
         #[test]
         fn it_updates_the_counter() -> Result<(), MockInputPinError> {
@@ -106,6 +102,13 @@ mod input_pin {
     mod active_low {
         use super::*;
         use crate::ActiveLow; // Not importing `ActiveLow` further up the chain to prevent mistakes.
+        use crate::Activeness;
+
+        /// Creates a `DebouncedInputPin<MockInputPin, A>`.
+        pub fn create_pin<A>(_activeness: A) -> DebouncedInputPin<MockInputPin, A> {
+            let pin = MockInputPin::default();
+            DebouncedInputPin::new(pin, Activeness::ActiveLow)
+        }
 
         #[test]
         fn it_updates_the_counter() -> Result<(), MockInputPinError> {
