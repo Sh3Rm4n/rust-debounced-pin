@@ -27,6 +27,10 @@ pub struct DebouncedInputPin<T: InputPin, A> {
     /// The counter.
     counter: i8,
 
+    /// Maximum number of times, the pin has to be polled and be continuously active to
+    /// change it's debounce state.
+    max_counts: i8,
+
     /// The debounced pin state.
     state: bool,
 }
@@ -38,8 +42,15 @@ impl<T: InputPin, A> DebouncedInputPin<T, A> {
             pin,
             activeness: PhantomData,
             counter: 0,
+            max_counts: 10,
             state: false,
         }
+    }
+
+    /// Change the number of times, the pin has to be polled and be continuously active to
+    /// change it's debounce state.
+    pub fn set_poll_amounts(&mut self, max_counts: i8) {
+        self.max_counts = max_counts;
     }
 }
 
@@ -62,6 +73,7 @@ impl<T: InputPin> DebouncedInputPin<T, ActiveHigh> {
             pin,
             activeness: PhantomData,
             counter: 0,
+            max_counts: 10,
             state: false,
         }
     }
@@ -73,11 +85,11 @@ impl<T: InputPin> DebouncedInputPin<T, ActiveHigh> {
         if self.pin.is_low()? {
             self.counter = 0;
             self.state = false;
-        } else if self.counter < 10 {
+        } else if self.counter < self.max_counts {
             self.counter += 1;
         }
 
-        if self.counter == 10 {
+        if self.counter == self.max_counts {
             self.state = true;
         }
 
@@ -92,6 +104,7 @@ impl<T: InputPin> DebouncedInputPin<T, ActiveLow> {
             pin,
             activeness: PhantomData,
             counter: 0,
+            max_counts: 10,
             state: true,
         }
     }
@@ -102,11 +115,11 @@ impl<T: InputPin> DebouncedInputPin<T, ActiveLow> {
         if self.pin.is_high()? {
             self.counter = 0;
             self.state = true;
-        } else if self.counter < 10 {
+        } else if self.counter < self.max_counts {
             self.counter += 1;
         }
 
-        if self.counter == 10 {
+        if self.counter == self.max_counts {
             self.state = false;
         }
 

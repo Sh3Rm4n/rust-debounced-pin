@@ -65,6 +65,15 @@ mod input_pin {
             pin.update()?;
             assert_eq!(pin.counter, 10);
             assert!(pin.is_high()?);
+
+            let mut pin = create_pin();
+            pin.set_poll_amounts(20);
+            pin.pin.state = true;
+            pin.counter = 20;
+            assert!(pin.is_low()?);
+            pin.update()?;
+            assert_eq!(pin.counter, 20);
+            assert!(pin.is_high()?);
             Ok(())
         }
 
@@ -125,6 +134,15 @@ mod input_pin {
             assert!(pin.is_high()?);
             pin.update()?;
             assert_eq!(pin.counter, 10);
+            assert!(pin.is_low()?);
+
+            let mut pin = create_pin();
+            pin.set_poll_amounts(20);
+            pin.pin.state = false;
+            pin.counter = pin.max_counts;
+            assert!(pin.is_high()?);
+            pin.update()?;
+            assert_eq!(pin.counter, 20);
             assert!(pin.is_low()?);
             Ok(())
         }
