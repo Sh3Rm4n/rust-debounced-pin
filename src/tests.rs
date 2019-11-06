@@ -103,6 +103,19 @@ mod input_pin {
             assert_eq!(pin.is_low()?, !pin.state);
             Ok(())
         }
+
+        #[test]
+        fn it_counter_does_not_exceed_max_counts() -> Result<(), MockInputPinError> {
+            let mut pin = create_pin();
+            pin.pin.state = true;
+            assert_eq!(pin.counter, 0);
+            for _update in 0..20 {
+                pin.update()?;
+            }
+            assert_eq!(pin.counter, pin.max_counts);
+            assert!(pin.is_high()?);
+            Ok(())
+        }
     }
 
     /// Tests for `DebouncedInputPin<T, ActiveLow>`.
@@ -171,6 +184,19 @@ mod input_pin {
             assert_eq!(pin.is_low()?, !pin.state);
             pin.state = false;
             assert_eq!(pin.is_low()?, !pin.state);
+            Ok(())
+        }
+
+        #[test]
+        fn it_counter_does_not_exceed_max_counts() -> Result<(), MockInputPinError> {
+            let mut pin = create_pin();
+            pin.pin.state = false;
+            assert_eq!(pin.counter, 0);
+            for _update in 0..20 {
+                pin.update()?;
+            }
+            assert_eq!(pin.counter, pin.max_counts);
+            assert!(pin.is_low()?);
             Ok(())
         }
     }
