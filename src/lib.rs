@@ -11,6 +11,17 @@ pub struct ActiveLow;
 /// Unit struct for active-high pins.
 pub struct ActiveHigh;
 
+/// The debounce state of the `update()` method
+#[derive(PartialEq)]
+pub enum DebounceState {
+    /// The pin state is active, but not debounced
+    Debouncing,
+    /// The pin state is not active, the counter is reset
+    Reset,
+    /// The pin state is high and is debounced
+    Active,
+}
+
 /// A debounced input pin.
 ///
 /// Implements approach 1 from [here](http://www.labbookpages.co.uk/electronics/debounce.html#soft)
@@ -69,18 +80,19 @@ impl<T: InputPin> DebouncedInputPin<T, ActiveHigh> {
     /// Updates the debounce logic.
     ///
     /// Needs to be called every ~1ms.
-    pub fn update(&mut self) -> Result<(), <Self as InputPin>::Error> {
+    pub fn update(&mut self) -> Result<DebounceState, <Self as InputPin>::Error> {
         if self.pin.is_low()? {
             self.counter = 0;
             self.state = false;
+            Ok(DebounceState::Reset)
         } else if self.counter < 10 {
             self.counter += 1;
+            Ok(DebounceState::Debouncing)
         } else {
             // Max count is reached
             self.state = true;
+            Ok(DebounceState::Active)
         }
-
-        Ok(())
     }
 }
 
@@ -97,18 +109,19 @@ impl<T: InputPin> DebouncedInputPin<T, ActiveLow> {
     /// Updates the debounce logic.
     ///
     /// Needs to be called every ~1ms.
-    pub fn update(&mut self) -> Result<(), <Self as InputPin>::Error> {
+    pub fn update(&mut self) -> Result<DebounceState, <Self as InputPin>::Error> {
         if self.pin.is_high()? {
             self.counter = 0;
             self.state = true;
+            Ok(DebounceState::Reset)
         } else if self.counter < 10 {
             self.counter += 1;
+            Ok(DebounceState::Debouncing)
         } else {
             // Max count is reached
             self.state = false;
+            Ok(DebounceState::Active)
         }
-
-        Ok(())
     }
 }
 
