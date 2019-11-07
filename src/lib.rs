@@ -75,9 +75,8 @@ impl<T: InputPin> DebouncedInputPin<T, ActiveHigh> {
             self.state = false;
         } else if self.counter < 10 {
             self.counter += 1;
-        }
-
-        if self.counter == 10 {
+        } else {
+            // Max count is reached
             self.state = true;
         }
 
@@ -104,9 +103,8 @@ impl<T: InputPin> DebouncedInputPin<T, ActiveLow> {
             self.state = true;
         } else if self.counter < 10 {
             self.counter += 1;
-        }
-
-        if self.counter == 10 {
+        } else {
+            // Max count is reached
             self.state = false;
         }
 
