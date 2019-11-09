@@ -1,4 +1,95 @@
 //! Adds a wrapper for an `InputPin` that debounces it's `is_high()` and `is_low()` methods.
+//!
+//! # Implementation
+//!
+//! This wrapper checks **only** the debounced state.
+//! It does not poll the pin and drives the debouncing poll implementation forward.
+//! To do this, you have to call `update()`. At best call it every 1 ms.
+//!
+//! # Example
+//!
+//! ## Simple
+//!
+//! ```rust,ignore
+//! use debounced_pin::DebouncedInputPin;
+//! use debounced_pin::ActiveHigh;
+//!
+//! // This is up to the implementation details of the embedded_hal you are using.
+//! let pin: InputPin = hal_function_which_returns_input_pin();
+//!
+//! let pin = DebouncedInputPin::active_high(pin);
+//! loop {
+//!     pin.update()?;
+//!     if pin.is_high()? {
+//!         // Do something with it
+//!         break;
+//!     }
+//!     // Also hardware specific
+//!     wait(1.ms());
+//! }
+//! ```
+//!
+//! ## Using the Debounce State
+//!
+//! ```rust,ignore
+//! use debounced_pin::{DebouncedInputPin, DebounceState};
+//! use debounced_pin::ActiveHigh;
+//!
+//! // This is up to the implementation details of the embedded_hal you are using.
+//! let pin: InputPin = hal_function_which_returns_input_pin();
+//!
+//! let pin = DebouncedInputPin::active_high(pin);
+//!
+//! loop {
+//!     match pin.update()? {
+//!         // Pin was reset or is not active in general
+//!         DebounceState::Reset => break,
+//!         // Pin is active but still debouncing
+//!         DebounceState::Debouncing => continue,
+//!         // Pin is active and debounced.
+//!         DebounceState::Active => break,
+//!     }
+//!     // Also hardware specific
+//!     wait(1.ms());
+//! }
+//!
+//! // If DebounceState::Reset this returns false,
+//! // else this returns true and the code gets executed.
+//! if pin.is_high()? {
+//!     // Do something with it
+//!     break;
+//! }
+//! ```
+//!
+//! ## Interrupt Based
+//!
+//! To utilize interrupts you could do the following:
+//!
+//! ```rust,ignore
+//!
+//! use debounced_pin::DebouncedInputPin;
+//! use debounced_pin::ActiveHigh;
+//!
+//! fn main() {
+//!     // This is up to the implementation details of the embedded_hal you are using.
+//!     let pin: InputPin = hal_function_which_returns_input_pin();
+//!
+//!     let pin = DebouncedInputPin::active_high(pin);
+//!
+//!     // Look up your hal documentation to find out how to do this
+//!     start_timer_with_1ms_poll();
+//!
+//!     loop {
+//!         if pin.is_high()? {
+//!             // Do something with it
+//!         }
+//!     }
+//! }
+//!
+//! #[interrupt]
+//! fn timer_interrupt {
+//!     pin.update()?;
+//! }
 
 #![no_std]
 
