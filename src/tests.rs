@@ -66,6 +66,15 @@ mod input_pin {
             pin.update()?;
             assert_eq!(pin.counter, 10);
             assert!(pin.is_high()?);
+
+            let mut pin = create_pin();
+            pin.set_poll_amounts(20);
+            pin.pin.state = true;
+            pin.counter = 20;
+            assert!(pin.is_low()?);
+            pin.update()?;
+            assert_eq!(pin.counter, 20);
+            assert!(pin.is_high()?);
             Ok(())
         }
 
@@ -117,6 +126,19 @@ mod input_pin {
             assert_eq!(pin.is_high()?, pin.is_active()?);
             Ok(())
         }
+
+        #[test]
+        fn it_counter_does_not_exceed_max_counts() -> Result<(), MockInputPinError> {
+            let mut pin = create_pin();
+            pin.pin.state = true;
+            assert_eq!(pin.counter, 0);
+            for _update in 0..20 {
+                pin.update()?;
+            }
+            assert_eq!(pin.counter, pin.max_counts);
+            assert!(pin.is_high()?);
+            Ok(())
+        }
     }
 
     /// Tests for `DebouncedInputPin<T, ActiveLow>`.
@@ -148,6 +170,15 @@ mod input_pin {
             assert!(pin.is_high()?);
             pin.update()?;
             assert_eq!(pin.counter, 10);
+            assert!(pin.is_low()?);
+
+            let mut pin = create_pin();
+            pin.set_poll_amounts(20);
+            pin.pin.state = false;
+            pin.counter = pin.max_counts;
+            assert!(pin.is_high()?);
+            pin.update()?;
+            assert_eq!(pin.counter, 20);
             assert!(pin.is_low()?);
             Ok(())
         }
@@ -198,6 +229,19 @@ mod input_pin {
             pin.state = false;
             assert!(pin.is_low()?);
             assert_eq!(pin.is_low()?, pin.is_active()?);
+            Ok(())
+        }
+
+        #[test]
+        fn it_counter_does_not_exceed_max_counts() -> Result<(), MockInputPinError> {
+            let mut pin = create_pin();
+            pin.pin.state = false;
+            assert_eq!(pin.counter, 0);
+            for _update in 0..20 {
+                pin.update()?;
+            }
+            assert_eq!(pin.counter, pin.max_counts);
+            assert!(pin.is_low()?);
             Ok(())
         }
     }
