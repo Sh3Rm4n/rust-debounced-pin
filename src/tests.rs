@@ -1,3 +1,4 @@
+use crate::Debounce;
 use crate::DebounceState;
 use crate::DebouncedInputPin;
 use embedded_hal::digital::v2::InputPin;

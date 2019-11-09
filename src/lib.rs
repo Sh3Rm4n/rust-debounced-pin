@@ -113,6 +113,14 @@ pub enum DebounceState {
     Active,
 }
 
+/// Debounce Trait which provides and update method which debounces the pin
+pub trait Debounce {
+    type Error;
+    type State;
+
+    fn update(&mut self) -> Result<Self::State, Self::Error>;
+}
+
 /// A debounced input pin.
 ///
 /// Implements approach 1 from [here](http://www.labbookpages.co.uk/electronics/debounce.html#soft)
@@ -167,11 +175,16 @@ impl<T: InputPin> DebouncedInputPin<T, ActiveHigh> {
             state: false,
         }
     }
+}
+
+impl<T: InputPin> Debounce for DebouncedInputPin<T, ActiveHigh> {
+    type Error = T::Error;
+    type State = DebounceState;
 
     /// Updates the debounce logic.
     ///
     /// Needs to be called every ~1ms.
-    pub fn update(&mut self) -> Result<DebounceState, <Self as InputPin>::Error> {
+    fn update(&mut self) -> Result<Self::State, Self::Error> {
         if self.pin.is_low()? {
             self.counter = 0;
             self.state = false;
@@ -197,10 +210,16 @@ impl<T: InputPin> DebouncedInputPin<T, ActiveLow> {
             state: true,
         }
     }
+}
+
+impl<T: InputPin> Debounce for DebouncedInputPin<T, ActiveLow> {
+    type Error = T::Error;
+    type State = DebounceState;
+
     /// Updates the debounce logic.
     ///
     /// Needs to be called every ~1ms.
-    pub fn update(&mut self) -> Result<DebounceState, <Self as InputPin>::Error> {
+    fn update(&mut self) -> Result<Self::State, Self::Error> {
         if self.pin.is_high()? {
             self.counter = 0;
             self.state = true;
