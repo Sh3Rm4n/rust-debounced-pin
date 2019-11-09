@@ -11,7 +11,7 @@
 //! ## Simple
 //!
 //! ```rust,ignore
-//! use debounced_pin::DebouncedInputPin;
+//! use debounced_pin::prelude::*;
 //! use debounced_pin::ActiveHigh;
 //!
 //! // This is up to the implementation details of the embedded_hal you are using.
@@ -32,7 +32,7 @@
 //! ## Using the Debounce State
 //!
 //! ```rust,ignore
-//! use debounced_pin::{DebouncedInputPin, DebounceState};
+//! use debounced_pin::prelude::*;
 //! use debounced_pin::ActiveHigh;
 //!
 //! // This is up to the implementation details of the embedded_hal you are using.
@@ -67,7 +67,7 @@
 //!
 //! ```rust,ignore
 //!
-//! use debounced_pin::DebouncedInputPin;
+//! use debounced_pin::prelude::*;
 //! use debounced_pin::ActiveHigh;
 //!
 //! fn main() {
@@ -95,6 +95,13 @@
 
 use core::marker::PhantomData;
 use embedded_hal::digital::v2::InputPin;
+
+/// Import the needed types and traits to use the `update()` method.
+pub mod prelude {
+    pub use crate::Debounce;
+    pub use crate::DebounceState;
+    pub use crate::DebouncedInputPin;
+}
 
 /// Unit struct for active-low pins.
 pub struct ActiveLow;
