@@ -11,6 +11,17 @@ pub struct ActiveLow;
 /// Unit struct for active-high pins.
 pub struct ActiveHigh;
 
+/// ActiveTrait
+///
+/// `is_active()` should return true, when the pin state is active.
+/// This abstracts away the pin voltage state, when the `Activness` of the pin
+/// is already known at compile time.
+pub trait ActiveTrait {
+    type Error;
+
+    fn is_active(&self) -> Result<bool, Self::Error>;
+}
+
 /// A debounced input pin.
 ///
 /// Implements approach 1 from [here](http://www.labbookpages.co.uk/electronics/debounce.html#soft)
@@ -85,6 +96,13 @@ impl<T: InputPin> DebouncedInputPin<T, ActiveHigh> {
     }
 }
 
+impl<T: InputPin> ActiveTrait for DebouncedInputPin<T, ActiveHigh> {
+    type Error = T::Error;
+    fn is_active(&self) -> Result<bool, Self::Error> {
+        self.is_high()
+    }
+}
+
 impl<T: InputPin> DebouncedInputPin<T, ActiveLow> {
     /// Initializes a new `ActiveLow` debounced input pin.
     pub fn active_low(pin: T) -> Self {
@@ -111,6 +129,13 @@ impl<T: InputPin> DebouncedInputPin<T, ActiveLow> {
         }
 
         Ok(())
+    }
+}
+
+impl<T: InputPin> ActiveTrait for DebouncedInputPin<T, ActiveLow> {
+    type Error = T::Error;
+    fn is_active(&self) -> Result<bool, Self::Error> {
+        self.is_low()
     }
 }
 

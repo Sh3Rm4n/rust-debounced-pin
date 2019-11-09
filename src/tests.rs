@@ -1,3 +1,4 @@
+use crate::ActiveTrait;
 use crate::DebouncedInputPin;
 use embedded_hal::digital::v2::InputPin;
 use failure::Fail;
@@ -94,6 +95,15 @@ mod input_pin {
             assert_eq!(pin.is_low()?, !pin.state);
             Ok(())
         }
+
+        #[test]
+        fn it_is_active_when_its_high() -> Result<(), MockInputPinError> {
+            let mut pin = create_pin();
+            pin.state = true;
+            assert!(pin.is_high()?);
+            assert_eq!(pin.is_high()?, pin.is_active()?);
+            Ok(())
+        }
     }
 
     /// Tests for `DebouncedInputPin<T, ActiveLow>`.
@@ -153,6 +163,15 @@ mod input_pin {
             assert_eq!(pin.is_low()?, !pin.state);
             pin.state = false;
             assert_eq!(pin.is_low()?, !pin.state);
+            Ok(())
+        }
+
+        #[test]
+        fn it_is_active_when_its_high() -> Result<(), MockInputPinError> {
+            let mut pin = create_pin();
+            pin.state = false;
+            assert!(pin.is_low()?);
+            assert_eq!(pin.is_low()?, pin.is_active()?);
             Ok(())
         }
     }
