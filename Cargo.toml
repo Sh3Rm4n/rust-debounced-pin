@@ -29,6 +29,8 @@ features = ["derive"]
 [dev-dependencies]
 cortex-m = "0.6.1"
 cortex-m-rt = "0.6.10"
+cortex-m-rtfm = "0.5.1"
+panic-halt = "0.2.0"
 panic-semihosting = "0.5.3"
 stm32f3xx-hal = { version = "0.3.0", features = ["rt", "unproven", "stm32f303"] }
 
@@ -37,3 +39,6 @@ name = "debounce_input_pin"
 
 [[example]]
 name = "debounce_state"
+
+[[example]]
+name = "debounce_rtfm"
